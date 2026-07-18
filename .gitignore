@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.cache/
+
+.DS_Store
+.idea/
+.vscode/
+
+datasets
+output/
+outputs/
+checkpoints/
+third_party/
+*.rrd
+
+# MANO is licensed separately and must be supplied by the user.
+packages/retarget_galbot/assets/mano_models/*.pkl
+assets/mano/*.pkl

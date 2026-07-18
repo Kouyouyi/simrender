@@ -1,0 +1,108 @@
+<mujoco model="G1_120s_v2_3">
+  <compiler angle="radian" meshdir="meshes"/>
+  <option gravity="0 0 -9.81"/>
+  <visual>
+    <global offwidth="1280" offheight="720"/>
+    <headlight ambient="0.28 0.28 0.28" diffuse="0.72 0.72 0.72"/>
+    <rgba haze="0.02 0.03 0.04 1"/>
+  </visual>
+  <statistic center="0.015968949 -0.0010421898 0.52587265" extent="2.65"/>
+  <asset>
+    <texture name="ground_tex" type="2d" builtin="checker" rgb1="0.12 0.17 0.22" rgb2="0.28 0.36 0.44" width="512" height="512"/>
+    <material name="ground_mat" texture="ground_tex" texrepeat="8 8" texuniform="true" reflectance="0.02"/>
+    <mesh name="mesh_base_link_0" file="base_link_0.obj"/>
+    <mesh name="mesh_body_link1_1" file="body_link1_1.obj"/>
+    <mesh name="mesh_body_link2_2" file="body_link2_2.obj"/>
+    <mesh name="mesh_arm_l_base_link_3" file="arm_l_base_link_3.obj"/>
+    <mesh name="mesh_arm_l_link1_4" file="arm_l_link1_4.obj"/>
+    <mesh name="mesh_arm_l_link2_5" file="arm_l_link2_5.obj"/>
+    <mesh name="mesh_arm_l_link3_6" file="arm_l_link3_6.obj"/>
+    <mesh name="mesh_arm_l_link4_7" file="arm_l_link4_7.obj"/>
+    <mesh name="mesh_arm_l_link5_8" file="arm_l_link5_8.obj"/>
+    <mesh name="mesh_arm_l_link6_9" file="arm_l_link6_9.obj"/>
+    <mesh name="mesh_arm_l_end_link_10" file="arm_l_end_link_10.obj"/>
+    <mesh name="mesh_gripper_l_base_link_11" file="gripper_l_base_link_11.obj"/>
+    <mesh name="mesh_gripper_l_inner_link1_12" file="gripper_l_inner_link1_12.obj"/>
+    <mesh name="mesh_gripper_l_inner_link3_13" file="gripper_l_inner_link3_13.obj"/>
+    <mesh name="mesh_gripper_l_inner_link4_14" file="gripper_l_inner_link4_14.obj"/>
+    <mesh name="mesh_gripper_l_inner_link5_15" file="gripper_l_inner_link5_15.obj"/>
+    <mesh name="mesh_gripper_l_inner_link2_16" file="gripper_l_inner_link2_16.obj"/>
+    <mesh name="mesh_gripper_l_outer_link1_17" file="gripper_l_outer_link1_17.obj"/>
+    <mesh name="mesh_gripper_l_outer_link3_18" file="gripper_l_outer_link3_18.obj"/>
+    <mesh name="mesh_gripper_l_outer_link4_19" file="gripper_l_outer_link4_19.obj"/>
+    <mesh name="mesh_gripper_l_outer_link5_20" file="gripper_l_outer_link5_20.obj"/>
+    <mesh name="mesh_gripper_l_outer_link2_21" file="gripper_l_outer_link2_21.obj"/>
+    <mesh name="mesh_arm_r_base_link_22" file="arm_r_base_link_22.obj"/>
+    <mesh name="mesh_arm_r_link1_23" file="arm_r_link1_23.obj"/>
+    <mesh name="mesh_arm_r_link2_24" file="arm_r_link2_24.obj"/>
+    <mesh name="mesh_arm_r_link3_25" file="arm_r_link3_25.obj"/>
+    <mesh name="mesh_arm_r_link4_26" file="arm_r_link4_26.obj"/>
+    <mesh name="mesh_arm_r_link5_27" file="arm_r_link5_27.obj"/>
+    <mesh name="mesh_arm_r_link6_28" file="arm_r_link6_28.obj"/>
+    <mesh name="mesh_arm_r_end_link_29" file="arm_r_end_link_29.obj"/>
+    <mesh name="mesh_gripper_r_base_link_30" file="gripper_r_base_link_30.obj"/>
+    <mesh name="mesh_gripper_r_inner_link1_31" file="gripper_r_inner_link1_31.obj"/>
+    <mesh name="mesh_gripper_r_inner_link3_32" file="gripper_r_inner_link3_32.obj"/>
+    <mesh name="mesh_gripper_r_inner_link4_33" file="gripper_r_inner_link4_33.obj"/>
+    <mesh name="mesh_gripper_r_inner_link5_34" file="gripper_r_inner_link5_34.obj"/>
+    <mesh name="mesh_gripper_r_inner_link2_35" file="gripper_r_inner_link2_35.obj"/>
+    <mesh name="mesh_gripper_r_outer_link1_36" file="gripper_r_outer_link1_36.obj"/>
+    <mesh name="mesh_gripper_r_outer_link3_37" file="gripper_r_outer_link3_37.obj"/>
+    <mesh name="mesh_gripper_r_outer_link4_38" file="gripper_r_outer_link4_38.obj"/>
+    <mesh name="mesh_gripper_r_outer_link5_39" file="gripper_r_outer_link5_39.obj"/>
+    <mesh name="mesh_gripper_r_outer_link2_40" file="gripper_r_outer_link2_40.obj"/>
+    <mesh name="mesh_head_link1_41" file="head_link1_41.obj"/>
+    <mesh name="mesh_head_link2_42" file="head_link2_42.obj"/>
+  </asset>
+  <worldbody>
+    <camera name="third_person" pos="2.0 -2.7 1.8" xyaxes="0.806405 0.5913637 0 -0.2068330 0.2820450 0.9368408" fovy="40"/>
+    <light pos="-2.080626 -2.097644 5.76736" dir="0.35 0.35 -1" directional="true" diffuse="0.85 0.85 0.85"/>
+    <light pos="2.112564 2.095545 3.670765" dir="-0.5 -0.4 -1" directional="true" diffuse="0.45 0.48 0.55"/>
+    <geom type="plane" pos="0 0 -0.2299198" size="6 6 0.1" material="ground_mat" contype="0" conaffinity="0"/>
+    <body name="g1_120s_visual">
+      <geom type="mesh" mesh="mesh_base_link_0" rgba="0.82 0.82 0.84 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_body_link1_1" rgba="0.12 0.13 0.15 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_body_link2_2" rgba="0.86 0.86 0.88 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_base_link_3" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link1_4" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link2_5" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link3_6" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link4_7" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link5_8" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_link6_9" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_l_end_link_10" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_base_link_11" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_inner_link1_12" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_inner_link3_13" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_inner_link4_14" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_inner_link5_15" rgba="0.08 0.09 0.10 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_inner_link2_16" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_outer_link1_17" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_outer_link3_18" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_outer_link4_19" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_outer_link5_20" rgba="0.08 0.09 0.10 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_l_outer_link2_21" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_base_link_22" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link1_23" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link2_24" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link3_25" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link4_26" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link5_27" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_link6_28" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_arm_r_end_link_29" rgba="0.92 0.92 0.94 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_base_link_30" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_inner_link1_31" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_inner_link3_32" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_inner_link4_33" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_inner_link5_34" rgba="0.08 0.09 0.10 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_inner_link2_35" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_outer_link1_36" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_outer_link3_37" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_outer_link4_38" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_outer_link5_39" rgba="0.08 0.09 0.10 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_gripper_r_outer_link2_40" rgba="0.18 0.19 0.21 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_head_link1_41" rgba="0.88 0.88 0.90 1" contype="0" conaffinity="0"/>
+      <geom type="mesh" mesh="mesh_head_link2_42" rgba="0.88 0.88 0.90 1" contype="0" conaffinity="0"/>
+    </body>
+  </worldbody>
+</mujoco>

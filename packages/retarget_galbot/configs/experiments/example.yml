@@ -1,0 +1,53 @@
+# Example experiment config for scripts/run_experiment.sh
+#
+# Usage:
+#   ./scripts/run_experiment.sh configs/experiments/example.yml
+#   ./scripts/run_experiment.sh configs/experiments/example.yml --max_frames 50 --overwrite
+#
+# Edit this file (or copy it) to change defaults; CLI flags override matching keys.
+
+# Which stages to run
+run:
+  retarget: true          # AoE → Galbot qpos (+ optional LeRobot / egoview)
+  visualize: true         # write / refresh Rerun .rrd from LeRobot root
+  open_rerun: false       # after visualize, spawn `rerun <rrd>` (needs display)
+
+# Input episode (set one of episode_dir / data_root)
+episode:
+  episode_dir: /path/to/raw_<collector>_seg_<id>
+  # data_root: /path/to/aoe_segments_root
+  max_episodes: null      # only used with data_root
+
+# Retarget + LeRobot export (maps to scripts/retarget.py)
+retarget:
+  robot: galbot
+  config: configs/galbot_dex_bimanual.yml
+  output_dir: output/exp_example
+  max_frames: 100
+  stride: 1
+  skip_existing: false
+  video_start_frame: null
+  write_pickle: false
+  write_jsonl: false
+  write_lerobot: true
+  overwrite: true
+  task: ""
+
+# LeRobot dataset location (also used by visualize)
+lerobot:
+  lerobot_root: output/exp_example/lerobot
+  repo_id: aoe/galbot_retarget_exp
+
+# Rerun (maps to scripts/visualize.py)
+visualize:
+  episode_index: 0
+  rrd: output/exp_example/episode_0.rrd
+  playback_speed: 1.0
+  # max_frames: null     # if omitted, reuse retarget.max_frames
+
+# Process environment for the bash runner
+env:
+  MUJOCO_GL: egl
+  # Optional: run via conda. Leave empty to use current python.
+  conda_env: ""
+  # conda_env: retarget_galbot

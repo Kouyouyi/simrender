@@ -1,0 +1,27 @@
+{
+  "camera_name": "cam_front_head_rgb",
+  "head_body": "head_link2",
+  "calibration_width": 640,
+  "calibration_height": 480,
+  "offset_in_head_m": [
+    -0.15563865,
+    -0.10147755,
+    -0.07795419
+  ],
+  "delta_rotvec_opencv_rad": [
+    -0.33865544,
+    -0.08471624,
+    0.05267925
+  ],
+  "vertical_fov_degrees": 51.68468775,
+  "coordinate_convention": {
+    "opencv_to_head_before_delta": {
+      "camera_right_x": "-head_z",
+      "camera_down_y": "+head_y",
+      "camera_forward_z": "+head_x"
+    },
+    "mujoco_camera_axes": "right, up, back"
+  },
+  "method": "Multi-frame fit of MuJoCo arm_link3/arm_link5 centres to episode_000000 robot joints, followed by full-mesh visual verification.",
+  "limitations": "RoboCOIN does not publish camera intrinsics, lens distortion, or head-camera extrinsics. This is a fitted pinhole calibration; residual outline differences include lens distortion and convex-hull-versus-production-shell geometry."
+}

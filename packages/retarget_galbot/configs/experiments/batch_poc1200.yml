@@ -1,0 +1,41 @@
+# Batch retarget defaults for scripts/run_batch_poc.sh
+#
+# Per-episode paths are filled by the batch runner. Override CLI flags still work
+# when calling run_experiment.sh directly.
+
+run:
+  retarget: true
+  visualize: true
+  open_rerun: false
+
+episode:
+  episode_dir: /path/to/episode   # overwritten per episode by the batch script
+  max_episodes: null
+
+retarget:
+  robot: galbot
+  config: configs/galbot_dex_bimanual.yml
+  output_dir: output/exp/PLACEHOLDER
+  max_frames: 1200
+  stride: 1
+  skip_existing: false
+  video_start_frame: null
+  write_pickle: false
+  write_jsonl: false
+  write_lerobot: true
+  overwrite: true
+  task: ""
+
+lerobot:
+  lerobot_root: output/exp/PLACEHOLDER/lerobot
+  repo_id: aoe/galbot_retarget_exp
+
+visualize:
+  episode_index: 0
+  rrd: output/exp/PLACEHOLDER/episode_0.rrd
+  playback_speed: 1.0
+
+env:
+  MUJOCO_GL: egl
+  # Leave empty to use current python; batch script may pass --conda_env.
+  conda_env: ""

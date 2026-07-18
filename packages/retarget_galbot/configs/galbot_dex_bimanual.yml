@@ -1,0 +1,124 @@
+retargeting:
+  # Bimanual reconstruction backend. It consumes ego_hands_reconstruction/hands.npz,
+  # estimates palm center (mean of wrist + MCP 5/9/13/17) and palm orientation,
+  # solves Galbot left/right gripper-TCP IK with Pinocchio, and writes both arms
+  # and grippers into one Galbot qpos. MuJoCo eef sites mark gripper centers.
+  backend: dex_bimanual
+  type: position
+  robot_name: galbot_one_golf
+  urdf_path: ../assets/robots/galbot/galbot_one_golf.urdf
+  hands: [left, right]
+  fps: 30
+
+  # Ego camera poses use pred_trans_cam / pred_rot_cam. They are converted from the
+  # OpenCV camera frame into Galbot head_link frame before scaling:
+  #   camera forward (+z) -> head forward (+x, robot base +X)
+  #   camera right (+x)  -> head left (-z, robot base -Y)
+  #   camera down (+y)   -> head down (+y, robot base -Z)
+  source_space: camera
+  reference_frame: head
+  head_link_name: head_end_effector_mount_link
+  # shoulder_scaled IK targets:
+  # synthesize source shoulders in the ego/head frame, use an episode-level
+  # arm-length scale (shoulder→palm), then map palm-center targets into Galbot
+  # base/head coordinates for left/right_gripper_tcp_link.
+  # absolute/delta are kept as legacy fallback modes.
+  position_mapping: shoulder_scaled
+  left_shoulder_link_name: left_arm_link1
+  right_shoulder_link_name: right_arm_link1
+  source_shoulder_offset_head: [0.0, -0.05, 0.0]
+  source_shoulder_half_width: 0.18
+
+  # Optimize both Galbot arms and both grippers.
+  target_joint_names:
+    - left_arm_joint1
+    - left_arm_joint2
+    - left_arm_joint3
+    - left_arm_joint4
+    - left_arm_joint5
+    - left_arm_joint6
+    - left_arm_joint7
+    - left_gripper_joint
+    - left_gripper_r_inner_knuckle_joint
+    - left_gripper_r_finger_joint
+    - left_gripper_l_knuckle_joint
+    - left_gripper_l_inner_knuckle_joint
+    - left_gripper_l_finger_joint
+    - right_arm_joint1
+    - right_arm_joint2
+    - right_arm_joint3
+    - right_arm_joint4
+    - right_arm_joint5
+    - right_arm_joint6
+    - right_arm_joint7
+    - right_gripper_joint
+    - right_gripper_r_inner_knuckle_joint
+    - right_gripper_r_finger_joint
+    - right_gripper_l_knuckle_joint
+    - right_gripper_l_inner_knuckle_joint
+    - right_gripper_l_finger_joint
+
+  # Validation links for both end-effectors and both gripper fingers.
+  target_link_names:
+    - left_gripper_tcp_link
+    - left_gripper_l_finger_link
+    - left_gripper_r_finger_link
+    - right_gripper_tcp_link
+    - right_gripper_l_finger_link
+    - right_gripper_r_finger_link
+
+  add_dummy_free_joint: false
+  # Keep IK validation faithful to solved qpos. Apply extra smoothing downstream
+  # only when controller latency/jerk tradeoffs are clear.
+  low_pass_alpha: 1.0
+  has_joint_limits: true
+  ignore_mimic_joint: false
+
+  ik:
+    solver: pinocchio_damped_least_squares
+    damping: 0.001
+    step_size: 0.6
+    max_iterations: 80
+    position_tolerance: 0.002
+    orientation_tolerance: 0.05
+    # Start with position IK for robust trajectory validation. Increase this
+    # above 0 to also track palm orientation at the gripper TCP.
+    orientation_weight: 0.0
+    seed_qpos:
+      left_arm_joint1: -0.4
+      left_arm_joint2: 0.5
+      left_arm_joint3: 0.6
+      left_arm_joint4: -1.0
+      left_arm_joint5: -0.3
+      left_arm_joint6: 0.4
+      left_arm_joint7: 0.0
+      right_arm_joint1: 0.4
+      right_arm_joint2: 0.5
+      right_arm_joint3: -0.6
+      right_arm_joint4: -1.0
+      right_arm_joint5: 0.3
+      right_arm_joint6: 0.4
+      right_arm_joint7: 0.0
+
+  workspace:
+    left:
+      # Head-link frame after camera remap: x forward, y down, z left.
+      scale: [1.5, 1.5, 1.5]
+      min: [-0.20, -0.05, -0.65]
+      max: [1.05, 0.55, 0.65]
+    right:
+      scale: [1.5, 1.5, 1.0]
+      min: [-0.20, -0.05, -0.65]
+      max: [1.05, 0.55, 0.65]
+
+  gripper:
+    # Master joint is *_gripper_joint with URDF/MJCF range [0, 1.703].
+    # Use nearly the full stroke so open↔close is visually obvious in MuJoCo/Rerun.
+    open_value: 0.0
+    close_value: 1.65
+    # Keypoint-based discrete gripper command:
+    # close if hand_openness <= keypoint_close_threshold, otherwise open.
+    # Higher threshold → close earlier / more often when the hand starts curling.
+    keypoint_close_threshold: 0.68
+    pinch_close_threshold: 0.55
+    openness_open_threshold: 0.62
