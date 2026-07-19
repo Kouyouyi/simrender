@@ -24,6 +24,16 @@ DEFAULT_CHUNK_SIZE = 50
 DEFAULT_SUBVIDEO_LENGTH = 100
 
 
+def repository_root() -> Path:
+    """Return the simrender checkout containing the Galbot package."""
+    return Path(__file__).resolve().parents[4]
+
+
+def bundled_propainter_root() -> Path:
+    """Return the bundled, weight-free ProPainter runtime source directory."""
+    return repository_root() / "third_party" / "ProPainter"
+
+
 class ProPainterRunner:
     """Run ProPainter in its own Python environment.
 
@@ -38,13 +48,8 @@ class ProPainterRunner:
         conda_env: str | None = None,
         python_executable: str | Path | None = None,
     ) -> None:
-        root_raw = root or os.environ.get("PROPAINTER_ROOT")
-        if not root_raw:
-            raise FileNotFoundError(
-                "ProPainter root not set. Pass root=... or export "
-                "PROPAINTER_ROOT=/path/to/ProPainter"
-            )
-        self.root = Path(root_raw)
+        root_raw = root or os.environ.get("PROPAINTER_ROOT") or bundled_propainter_root()
+        self.root = Path(root_raw).expanduser().resolve()
         self.conda_env = conda_env or os.environ.get(
             "PROPAINTER_CONDA_ENV", DEFAULT_PROPAINTER_ENV
         )

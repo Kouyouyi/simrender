@@ -10,11 +10,16 @@ __pycache__/
 .vscode/
 
 datasets
+# Generated render, replay, and experiment artifacts.
 output/
 outputs/
-checkpoints/
-third_party/
+/checkpoints/
 *.rrd
+
+# Third-party runtime sources are versioned; downloaded weights are not.
+third_party/sam2/checkpoints/*.pt
+third_party/ProPainter/weights/*.pth
+third_party/**/__pycache__/
 
 # MANO is licensed separately and must be supplied by the user.
 packages/retarget_galbot/assets/mano_models/*.pkl

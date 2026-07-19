@@ -1,0 +1,2 @@
+# Preserve vendored upstream sources byte-for-byte.
+third_party/** -whitespace

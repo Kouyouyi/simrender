@@ -13,6 +13,7 @@ uses ProPainter for inpainting.
 
 from __future__ import annotations
 
+from contextlib import nullcontext
 import json
 import logging
 import os
@@ -30,6 +31,15 @@ logger = logging.getLogger(__name__)
 
 # Fingertip + MCP indices for SAM2 seeding
 _SEED_KPT_IDS = [4, 8, 12, 16, 20, 5, 9, 13, 17]
+
+
+def _sam2_autocast_context(device: str):
+    """Enable BF16 autocast only for CUDA SAM2 inference."""
+    if str(device).startswith("cuda"):
+        import torch
+
+        return torch.autocast("cuda", dtype=torch.bfloat16)
+    return nullcontext()
 
 
 # ── Camera intrinsics ───────────────────────────────────────────────────────
@@ -673,7 +683,8 @@ def _run_egoview_pipeline(
             shutil.rmtree(candidate, ignore_errors=True)
             break
 
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     logger.info("Egoview 3/3 done.")
 
     return mask_frames, inpaint_frames, egoview_frames
@@ -809,7 +820,7 @@ def _segment_hands_sam2_chunk(
     # Run SAM2 inference
     import torch
 
-    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+    with torch.inference_mode(), _sam2_autocast_context(segmenter.device):
         state = segmenter._build_inference_state(ego_arr)
         segmenter.predictor.reset_state(state)
 
@@ -842,7 +853,8 @@ def _segment_hands_sam2_chunk(
         _collect(reverse=False)
         _collect(reverse=True)
 
-    torch.cuda.empty_cache()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     return masks
 
 

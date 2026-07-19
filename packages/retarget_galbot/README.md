@@ -19,7 +19,7 @@ Rerun) lives under `retarget_galbot/`.
 | Python | ≥ 3.10 (3.11 recommended) |
 | GPU | CUDA recommended for SAM2 / ProPainter; CPU possible but slow |
 | OS | Linux (MuJoCo EGL headless rendering assumed in examples) |
-| Disk | SAM2 + ProPainter weights/repos are large; plan several GB |
+| Disk | SAM2 + ProPainter weights are large; runtime sources are bundled |
 
 ## Environment setup
 
@@ -71,19 +71,18 @@ If `import lerobot` fails, dataset export will raise at runtime.
 
 ### 3. SAM2 (egoview hand / arm segmentation)
 
-SAM2 must be importable in the **same** env as this package (`import sam2`).
-
-1. Clone [SAM 2](https://github.com/facebookresearch/sam2) and install it into
-   `retarget_galbot` (follow upstream install docs).
-2. Download the `sam2.1_hiera_base_plus` checkpoint.
-3. Point this repo at your install:
+The pinned, weight-free SAM2 runtime is bundled under `third_party/sam2`. From
+the repository root, install it in the **same** environment as this package and
+download the checkpoint:
 
 ```bash
-export SAM2_CHECKPOINT=/path/to/sam2.1_hiera_base_plus.pt
-export SAM2_MODEL_CFG=configs/sam2.1/sam2.1_hiera_b+.yaml
+./scripts/setup_egoview.sh sam2
+./scripts/download_egoview_checkpoints.sh
 ```
 
-`SAM2_MODEL_CFG` is resolved relative to the SAM2 package configs, as in upstream.
+The wrapper automatically finds the bundled source. Its default checkpoint is
+`checkpoints/sam2/sam2.1_hiera_base_plus.pt`; `SAM2_CHECKPOINT` and
+`SAM2_MODEL_CFG` can override the checkpoint and config.
 
 ### 4. ProPainter (egoview hand removal; separate process)
 
@@ -92,23 +91,24 @@ not collide with MuJoCo / SAM2. Create a second env (name is conventional):
 
 ```bash
 conda create -n propainter python=3.10 -y
-conda activate propainter
-# Install ProPainter and its deps per upstream:
-#   https://github.com/sczhou/ProPainter
-conda activate retarget_galbot
+export PROPAINTER_PYTHON="$(conda run -n propainter which python)"
+PROPAINTER_PYTHON="$PROPAINTER_PYTHON" ./scripts/setup_egoview.sh propainter
 ```
 
-Then tell Galbot where ProPainter lives:
+The wrapper automatically uses `third_party/ProPainter`; use `PROPAINTER_ROOT`
+only to select another checkout. Keep the interpreter set when running Galbot:
 
 ```bash
-export PROPAINTER_ROOT=/path/to/ProPainter
 export PROPAINTER_PYTHON="$(conda run -n propainter which python)"
 # optional:
+# export PROPAINTER_ROOT=/path/to/another/ProPainter
 # export PROPAINTER_CONDA_ENV=propainter
 # export RETARGET_TMPDIR=/tmp/retarget_galbot
 ```
 
-`PROPAINTER_ROOT` must contain `inference_propainter.py`.
+**License:** bundled ProPainter uses S-Lab License 1.0 and is restricted to
+non-commercial use and redistribution. Commercial use requires upstream
+permission. See `third_party/README.md` and `third_party/ProPainter/LICENSE`.
 
 ### 5. MANO models (optional sidecar generation)
 
@@ -163,6 +163,7 @@ egoview.render            SAM2 → ProPainter → MuJoCo ego overlay
 
 - `scripts/retarget.py` — single / batch retargeting (+ optional LeRobot)
 - `scripts/export_lerobot.py` — egoview overlay + LeRobot + Rerun from actions
+- `scripts/run_hand_removal.py` — standalone SAM2 masks + ProPainter completion
 - `scripts/visualize.py` — Rerun replay of an existing LeRobot root
 - Pinocchio damped least-squares TCP IK on Galbot 33-DoF qpos
 - Palm-center IK targets (mean of wrist + MCP 5/9/13/17) with episode arm-length scaling
@@ -179,6 +180,36 @@ The following egoview / data-plumbing techniques are adapted from Open-AoE
 | Video inpainting before robot overlay (ProPainter backend) | `egoview/propainter.py` |
 | MANO FK → `hands_keypoints.npz` sidecar | `aoe/mano_sidecar.py` |
 | `RobotSpec` registry + MJCF camera inject via temp-dir symlinks | `robots/` |
+
+The exact upstream SAM2/ProPainter commits and copied licenses are recorded in
+the repository-level `third_party/README.md`. No checkpoints are versioned.
+
+## Standalone hand removal
+
+Run stages 1 and 2 without IK, MuJoCo, LeRobot, or Rerun:
+
+```bash
+export AOE_EPISODE=/path/to/episode
+export PROPAINTER_PYTHON="$(conda run -n propainter which python)"
+
+python scripts/run_hand_removal.py \
+  --episode_dir "$AOE_EPISODE" \
+  --output_dir output/galbot/hand_removal \
+  --max_frames 100
+```
+
+Outputs:
+
+| File | Content |
+|---|---|
+| `sam2_hand_arm_mask.npy` | Lossless `(T,H,W)` bool mask for reuse |
+| `sam2_hand_arm_mask.mp4` | H.264 High / `avc1` / `yuv420p` mask preview |
+| `propainter_inpaint.mp4` | H.264 completed RGB video |
+
+Use `--skip_inpaint` to inspect SAM2 only. Use
+`--skip_sam --mask_input /path/to/mask.npy` to rerun ProPainter without SAM2.
+The full `export_lerobot.py`/`retarget.py --write_lerobot` path calls the same
+backend functions before overlaying the MuJoCo arms.
 
 ## Experiment runner (YAML + CLI)
 
@@ -322,8 +353,8 @@ python scripts/export_lerobot.py \
 | Variable | Purpose |
 |---|---|
 | `MUJOCO_GL=egl` | Headless MuJoCo |
-| `SAM2_CHECKPOINT` / `SAM2_MODEL_CFG` | SAM2 weights / config |
-| `PROPAINTER_ROOT` / `PROPAINTER_PYTHON` | ProPainter checkout + interpreter |
+| `SAM2_CHECKPOINT` / `SAM2_MODEL_CFG` | Optional SAM2 weight / config overrides |
+| `PROPAINTER_ROOT` / `PROPAINTER_PYTHON` | Optional ProPainter source override + subprocess interpreter |
 | `LEROBOT_SRC` | Optional local LeRobot `src` if not installed |
 | `RETARGET_TMPDIR` | Scratch dir for ProPainter frame dumps |
 | `RETARGET_SAM2_CHUNK_SIZE` | SAM2 chunk length (default `300`) |

@@ -9,6 +9,7 @@ Adapted from Open-AoE Phantom Stage-3 hand removal (SAM2 video seeding).
 from __future__ import annotations
 
 import os
+import sys
 import tempfile
 from pathlib import Path
 
@@ -18,6 +19,59 @@ import torch
 
 
 DEFAULT_SAM2_CFG = "configs/sam2.1/sam2.1_hiera_b+.yaml"
+DEFAULT_SAM2_CHECKPOINT = "sam2.1_hiera_base_plus.pt"
+
+
+def repository_root() -> Path:
+    """Return the simrender checkout containing the Galbot package."""
+    return Path(__file__).resolve().parents[4]
+
+
+def bundled_sam2_root() -> Path:
+    """Return the bundled, weight-free SAM2 runtime source directory."""
+    return repository_root() / "third_party" / "sam2"
+
+
+def default_checkpoint_path() -> Path:
+    """Return the default external checkpoint location."""
+    return repository_root() / "checkpoints" / "sam2" / DEFAULT_SAM2_CHECKPOINT
+
+
+def resolve_checkpoint(checkpoint: str | Path | None = None) -> Path:
+    """Resolve an explicit, environment, or checkout-local SAM2 checkpoint."""
+    raw = checkpoint or os.environ.get("SAM2_CHECKPOINT") or default_checkpoint_path()
+    path = Path(raw).expanduser().resolve()
+    if not path.exists():
+        raise FileNotFoundError(
+            f"SAM2 checkpoint not found: {path}. Run "
+            "scripts/download_egoview_checkpoints.sh, pass checkpoint=..., or "
+            "export SAM2_CHECKPOINT=/path/to/sam2.1_hiera_base_plus.pt."
+        )
+    return path
+
+
+def ensure_sam2_importable() -> Path:
+    """Add the bundled SAM2 runtime to sys.path when no install is present."""
+    try:
+        __import__("sam2")
+        import sam2
+
+        package_file = getattr(sam2, "__file__", None)
+        return Path(package_file).resolve().parent if package_file else Path("sam2")
+    except ModuleNotFoundError as exc:
+        if exc.name != "sam2":
+            raise
+
+    root = bundled_sam2_root()
+    if not (root / "sam2" / "build_sam.py").exists():
+        raise ModuleNotFoundError(
+            f"SAM2 is not installed and bundled runtime source is missing: {root}"
+        )
+    root_str = str(root)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
+    __import__("sam2")
+    return root
 
 
 class HandArmSegmenter:
@@ -36,6 +90,7 @@ class HandArmSegmenter:
         offload_video_to_cpu: bool = True,
         offload_state_to_cpu: bool = False,
     ) -> None:
+        ensure_sam2_importable()
         from sam2.build_sam import build_sam2_video_predictor
 
         self._tmpdir: tempfile.TemporaryDirectory[str] | None = None
@@ -44,18 +99,7 @@ class HandArmSegmenter:
         self.offload_state_to_cpu = offload_state_to_cpu
 
         cfg = model_cfg or os.environ.get("SAM2_MODEL_CFG", DEFAULT_SAM2_CFG)
-        ckpt_raw = checkpoint or os.environ.get("SAM2_CHECKPOINT")
-        if not ckpt_raw:
-            raise FileNotFoundError(
-                "SAM2 checkpoint not set. Pass checkpoint=... or export "
-                "SAM2_CHECKPOINT=/path/to/sam2.1_hiera_base_plus.pt"
-            )
-        ckpt = Path(ckpt_raw)
-        if not ckpt.exists():
-            raise FileNotFoundError(
-                f"SAM2 checkpoint not found: {ckpt}. Set SAM2_CHECKPOINT to a "
-                "valid sam2.1_hiera_base_plus.pt path."
-            )
+        ckpt = resolve_checkpoint(checkpoint)
 
         self.predictor = build_sam2_video_predictor(
             cfg,
